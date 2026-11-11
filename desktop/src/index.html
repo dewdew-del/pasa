@@ -10,8 +10,8 @@
 <body>
   <div class="app">
     <div class="head">
-      <div class="word">Pasa</div>
-      <div class="status"><span class="dot" id="dot"></span><span id="status">Waiting for phone</span></div>
+      <img class="logo" src="logo.png" alt="Pasa" width="28" height="28">
+      <div class="status"><span class="dot" id="dot"></span><span id="status">Not connected</span></div>
     </div>
 
     <div class="qr-card">
@@ -26,20 +26,20 @@
     </div>
 
     <div class="list-box">
-      <div class="list-head"><h2>Transfers</h2><span class="num" id="sum"></span></div>
-      <div class="empty" id="empty">Drop files here</div>
+      <div class="list-head" id="listHead" hidden><h2>Transfers</h2><span class="num" id="sum"></span></div>
+      <div class="empty" id="empty"><svg class="i"><use href="#i-down"/></svg>Drop files here</div>
       <ul class="list" id="list"></ul>
     </div>
 
     <div class="foot">
       <details>
-        <summary>Can't connect?</summary>
+        <summary>Help</summary>
         <ul>
           <li>Same Wi-Fi or hotspot</li>
           <li>Allow Pasa in Windows Firewall</li>
+          <li><button class="link" id="forget">Forget phones</button></li>
         </ul>
       </details>
-      <button class="link" id="forget">Forget phones</button>
     </div>
   </div>
   <div class="drop" aria-hidden="true">Drop to send</div>

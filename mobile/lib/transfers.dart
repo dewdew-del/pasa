@@ -13,7 +13,14 @@ enum TStatus { queued, active, done, cancelled, failed }
 
 /// One file moving either way. Rows listen to it, so progress rebuilds only that row.
 class Transfer extends ChangeNotifier {
-  Transfer({required this.id, required this.name, required this.size, required this.dir, this.file, this.item});
+  Transfer({
+    required this.id,
+    required this.name,
+    required this.size,
+    required this.dir,
+    this.file,
+    this.item,
+  });
 
   final String id;
   final String name;
@@ -32,7 +39,8 @@ class Transfer extends ChangeNotifier {
   int get speed {
     final s = startedAt;
     if (s == null) return 0;
-    final secs = (finishedAt ?? DateTime.now()).difference(s).inMicroseconds / 1e6;
+    final secs =
+        (finishedAt ?? DateTime.now()).difference(s).inMicroseconds / 1e6;
     return secs < 0.2 ? 0 : (bytes / secs).round();
   }
 
@@ -47,7 +55,12 @@ void _wakelock(bool on) {
 
 /// Runs transfers one at a time (both directions, first in first out) and polls the laptop's outbox.
 class TransferQueue extends ChangeNotifier {
-  TransferQueue(this.api, {required this.saveDir, this.pollEvery = const Duration(seconds: 1), this.keepAwake = _wakelock});
+  TransferQueue(
+    this.api, {
+    required this.saveDir,
+    this.pollEvery = const Duration(seconds: 1),
+    this.keepAwake = _wakelock,
+  });
 
   final PasaApi api;
   final Directory saveDir;
@@ -66,14 +79,17 @@ class TransferQueue extends ChangeNotifier {
 
   /// Live first in send order, then finished newest first.
   List<Transfer> get items {
-    final fin = _all.where((t) => !t.live).toList()..sort((a, b) => b.finishedAt!.compareTo(a.finishedAt!));
+    final fin = _all.where((t) => !t.live).toList()
+      ..sort((a, b) => b.finishedAt!.compareTo(a.finishedAt!));
     return [..._all.where((t) => t.live), ...fin];
   }
 
   /// The laptop rejected our key ("Forget phones" was pressed): the phone must scan again.
   bool forgotten = false;
 
-  bool get connected => _lastOk != null && DateTime.now().difference(_lastOk!) < const Duration(seconds: 3);
+  bool get connected =>
+      _lastOk != null &&
+      DateTime.now().difference(_lastOk!) < const Duration(seconds: 3);
 
   void start() {
     _poll = Timer.periodic(pollEvery, (_) => _pollOnce());
@@ -88,7 +104,15 @@ class TransferQueue extends ChangeNotifier {
       _lastOk = DateTime.now();
       for (final it in items) {
         if (_seen.add(it.id)) {
-          _all.add(Transfer(id: it.id, name: it.name, size: it.size, dir: Dir.toPhone, item: it));
+          _all.add(
+            Transfer(
+              id: it.id,
+              name: it.name,
+              size: it.size,
+              dir: Dir.toPhone,
+              item: it,
+            ),
+          );
           added = true;
         }
       }
@@ -110,7 +134,15 @@ class TransferQueue extends ChangeNotifier {
 
   void addUploads(List<File> files) {
     for (final f in files) {
-      _all.add(Transfer(id: 'u${_uploadSeq++}', name: p.basename(f.path), size: f.lengthSync(), dir: Dir.toLaptop, file: f));
+      _all.add(
+        Transfer(
+          id: 'u${_uploadSeq++}',
+          name: p.basename(f.path),
+          size: f.lengthSync(),
+          dir: Dir.toLaptop,
+          file: f,
+        ),
+      );
     }
     notifyListeners();
     _run();
@@ -153,12 +185,24 @@ class TransferQueue extends ChangeNotifier {
       ..startedAt = DateTime.now();
     final abort = _abort = Completer<void>();
     notifyListeners();
-    final tick = Timer.periodic(const Duration(milliseconds: 150), (_) => t.changed());
+    final tick = Timer.periodic(
+      const Duration(milliseconds: 150),
+      (_) => t.changed(),
+    );
     try {
       if (t.dir == Dir.toLaptop) {
-        await api.upload(t.file!, onProgress: (n) => t.bytes = n, abort: abort.future);
+        await api.upload(
+          t.file!,
+          onProgress: (n) => t.bytes = n,
+          abort: abort.future,
+        );
       } else {
-        await api.download(t.item!, saveDir, onProgress: (n) => t.bytes = n, abort: abort.future);
+        await api.download(
+          t.item!,
+          saveDir,
+          onProgress: (n) => t.bytes = n,
+          abort: abort.future,
+        );
       }
       t
         ..bytes = t.size

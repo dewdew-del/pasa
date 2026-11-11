@@ -12,7 +12,7 @@ String uniqueName(Directory dir, String name) {
   final dot = name.lastIndexOf('.');
   final stem = dot > 0 ? name.substring(0, dot) : name;
   final ext = dot > 0 ? name.substring(dot) : '';
-  for (var n = 1;; n++) {
+  for (var n = 1; ; n++) {
     final candidate = '$stem ($n)$ext';
     if (!File('${dir.path}/$candidate').existsSync()) return candidate;
   }
@@ -33,4 +33,5 @@ String formatBytes(int bytes) {
 String formatSpeed(int bytesPerSec) => '${formatBytes(bytesPerSec)}/s';
 
 /// Public Download/Pasa; apps may write their own files there without a permission on Android 11+.
-Future<Directory> receiveDir() => Directory('/storage/emulated/0/Download/Pasa').create(recursive: true);
+Future<Directory> receiveDir() =>
+    Directory('/storage/emulated/0/Download/Pasa').create(recursive: true);

@@ -41,11 +41,17 @@ class _ConnectScreenState extends State<ConnectScreen> {
     }
     await saveLaptop(info);
     if (!mounted) return;
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => TransferScreen(api: api, info: info)));
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => TransferScreen(api: api, info: info),
+      ),
+    );
   }
 
   Future<void> _scan() async {
-    final info = await Navigator.of(context).push<LaptopInfo>(MaterialPageRoute(builder: (_) => const ScanScreen()));
+    final info = await Navigator.of(
+      context,
+    ).push<LaptopInfo>(MaterialPageRoute(builder: (_) => const ScanScreen()));
     if (info != null) await _connect(info, 'Laptop not found. Same Wi-Fi?');
   }
 
@@ -53,45 +59,75 @@ class _ConnectScreenState extends State<ConnectScreen> {
   Widget build(BuildContext context) {
     final t = Theme.of(context);
     final saved = _saved;
+    final muted = t.colorScheme.onSurfaceVariant;
     return Scaffold(
-      appBar: AppBar(title: const Text('Pasa', style: TextStyle(fontWeight: FontWeight.w600))),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: ClipRRect(
+          borderRadius: BorderRadius.circular(7),
+          child: Image.asset(
+            'assets/logo.png',
+            width: 28,
+            height: 28,
+            semanticLabel: 'Pasa',
+          ),
+        ),
+      ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Text(saved != null ? 'Welcome back' : "Scan your laptop's QR",
-                  style: t.textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.w600)),
-              const SizedBox(height: 12),
-              if (_error != null) ...[Notice(_error!), const SizedBox(height: 12)],
-              if (saved != null) ...[
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                  decoration: BoxDecoration(
-                    color: t.colorScheme.surface,
-                    border: Border.all(color: t.colorScheme.outlineVariant),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Row(children: [
-                    Icon(Icons.laptop_outlined, size: 18, color: t.colorScheme.onSurfaceVariant),
-                    const SizedBox(width: 12),
-                    Text(saved.name, style: const TextStyle(fontWeight: FontWeight.w600)),
-                  ]),
+              // The hero: what you're connecting to, or what to scan.
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      saved != null
+                          ? Icons.laptop_outlined
+                          : Icons.qr_code_scanner,
+                      size: 72,
+                      color: t.colorScheme.primary,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      saved?.name ?? 'Scan the QR on your laptop',
+                      textAlign: TextAlign.center,
+                      style: t.textTheme.titleLarge!.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
+              ),
+              if (_error != null) ...[
+                Notice(_error!),
                 const SizedBox(height: 12),
+              ],
+              if (saved != null) ...[
                 FilledButton(
-                  onPressed: _busy ? null : () => _connect(saved, 'Laptop not found. Scan again.'),
+                  onPressed: _busy
+                      ? null
+                      : () => _connect(saved, 'Laptop not found. Scan again.'),
                   child: Text(_busy ? 'Connecting…' : 'Reconnect'),
                 ),
-                const SizedBox(height: 12),
-                OutlinedButton.icon(onPressed: _busy ? null : _scan, icon: const Icon(Icons.qr_code_scanner, size: 18), label: const Text('Scan QR code')),
+                const SizedBox(height: 8),
+                TextButton.icon(
+                  onPressed: _busy ? null : _scan,
+                  style: TextButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48),
+                    foregroundColor: muted,
+                  ),
+                  icon: const Icon(Icons.qr_code_scanner, size: 18),
+                  label: const Text('Scan a new QR'),
+                ),
               ] else
                 FilledButton.icon(
                   onPressed: _busy ? null : _scan,
                   icon: const Icon(Icons.qr_code_scanner, size: 18),
-                  label: Text(_busy ? 'Connecting…' : 'Scan QR code'),
+                  label: Text(_busy ? 'Connecting…' : 'Scan'),
                 ),
             ],
           ),
@@ -112,10 +148,18 @@ class Notice extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: dark ? const Color(0xFF241C0B) : const Color(0xFFFFFBEB),
-        border: Border.all(color: dark ? const Color(0xFF5A4718) : const Color(0xFFFDE68A)),
+        border: Border.all(
+          color: dark ? const Color(0xFF5A4718) : const Color(0xFFFDE68A),
+        ),
         borderRadius: BorderRadius.circular(6),
       ),
-      child: Text(text, style: TextStyle(fontSize: 13, color: dark ? const Color(0xFFF2C36B) : const Color(0xFF92400E))),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 13,
+          color: dark ? const Color(0xFFF2C36B) : const Color(0xFF92400E),
+        ),
+      ),
     );
   }
 }
@@ -147,26 +191,38 @@ class _ScanScreenState extends State<ScanScreen> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        backgroundColor: Colors.black,
-        appBar: AppBar(backgroundColor: Colors.black, foregroundColor: Colors.white),
-        extendBodyBehindAppBar: true,
-        body: Stack(children: [
-          MobileScanner(onDetect: _onDetect),
-          Center(
-            child: Container(
-              width: 220,
-              height: 220,
-              decoration: BoxDecoration(border: Border.all(color: Colors.white, width: 2), borderRadius: BorderRadius.circular(12)),
+    backgroundColor: Colors.black,
+    appBar: AppBar(
+      backgroundColor: Colors.black,
+      foregroundColor: Colors.white,
+    ),
+    extendBodyBehindAppBar: true,
+    body: Stack(
+      children: [
+        MobileScanner(onDetect: _onDetect),
+        Center(
+          child: Container(
+            width: 220,
+            height: 220,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.white, width: 2),
+              borderRadius: BorderRadius.circular(12),
             ),
           ),
-          Positioned(
-            left: 16,
-            right: 16,
-            bottom: 32,
-            child: _wrong
-                ? const Center(child: Notice('Not a Pasa code'))
-                : const Text('Scan the QR on your laptop', textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 14)),
-          ),
-        ]),
-      );
+        ),
+        Positioned(
+          left: 16,
+          right: 16,
+          bottom: 32,
+          child: _wrong
+              ? const Center(child: Notice('Not a Pasa code'))
+              : const Text(
+                  'Scan the QR on your laptop',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white, fontSize: 14),
+                ),
+        ),
+      ],
+    ),
+  );
 }

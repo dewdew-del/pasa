@@ -75,6 +75,7 @@ function render(list) {
     if (ul.children[i] !== li) ul.insertBefore(li, ul.children[i] || null); // moves only rows whose place changed
   });
   $("empty").hidden = list.length > 0;
+  $("listHead").hidden = list.length === 0;
   const left = list.filter(live);
   const active = left.find((t) => t.status === "active");
   const remaining = left.reduce((a, t) => a + t.size - t.bytes, 0);
@@ -83,7 +84,7 @@ function render(list) {
 listen("transfers", (e) => render(e.payload));
 listen("connection", (e) => {
   $("dot").classList.toggle("on", e.payload);
-  $("status").textContent = e.payload ? "Phone connected" : "Waiting for phone";
+  $("status").textContent = e.payload ? "Connected" : "Not connected";
 });
 
 // ---------- actions ----------
