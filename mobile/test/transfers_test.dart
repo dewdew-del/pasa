@@ -116,6 +116,20 @@ void main() {
     expect(q.items.map((t) => t.name), ['c.txt', 'b.txt', 'a.txt']);
   });
 
+  test('laptop forgetting the phone sets forgotten', () async {
+    final api = PasaApi('http://127.0.0.1:${laptop.server.port}', 'k');
+    final forgot = await HttpServer.bind('127.0.0.1', 0);
+    forgot.listen((r) async {
+      r.response.statusCode = 401;
+      await r.response.close();
+    });
+    final q2 = TransferQueue(PasaApi('http://127.0.0.1:${forgot.port}', api.key), saveDir: dir, pollEvery: const Duration(milliseconds: 100), keepAwake: (_) {});
+    q2.start();
+    await until(() => q2.forgotten);
+    q2.dispose();
+    await forgot.close(force: true);
+  });
+
   test('connected follows polling', () async {
     q.start();
     await until(() => q.connected);

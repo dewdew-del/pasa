@@ -16,8 +16,9 @@ class OutboxItem {
 }
 
 class PasaException implements Exception {
-  PasaException(this.message);
+  PasaException(this.message, {this.status});
   final String message;
+  final int? status; // HTTP status, when the laptop answered
   @override
   String toString() => message;
 }
@@ -55,7 +56,7 @@ class PasaApi {
 
   Future<List<OutboxItem>> outbox() async {
     final r = await _client.get(Uri.parse('$baseUrl/api/outbox'), headers: _auth).timeout(const Duration(seconds: 3));
-    if (r.statusCode != 200) throw PasaException('Outbox failed (${r.statusCode})');
+    if (r.statusCode != 200) throw PasaException('Outbox failed (${r.statusCode})', status: r.statusCode);
     return (jsonDecode(r.body) as List)
         .map((j) => OutboxItem(j['id'] as String, j['name'] as String, j['size'] as int))
         .toList();

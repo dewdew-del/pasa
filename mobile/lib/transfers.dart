@@ -70,6 +70,9 @@ class TransferQueue extends ChangeNotifier {
     return [..._all.where((t) => t.live), ...fin];
   }
 
+  /// The laptop rejected our key ("Forget phones" was pressed): the phone must scan again.
+  bool forgotten = false;
+
   bool get connected => _lastOk != null && DateTime.now().difference(_lastOk!) < const Duration(seconds: 3);
 
   void start() {
@@ -88,6 +91,11 @@ class TransferQueue extends ChangeNotifier {
           _all.add(Transfer(id: it.id, name: it.name, size: it.size, dir: Dir.toPhone, item: it));
           added = true;
         }
+      }
+    } on PasaException catch (e) {
+      if (e.status == 401 && !forgotten) {
+        forgotten = true;
+        added = true; // forces a notify
       }
     } catch (_) {
       // laptop unreachable: only the connection flag changes

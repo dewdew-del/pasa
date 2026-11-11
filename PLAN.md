@@ -1,7 +1,7 @@
 # Pasa: Offline File Transfer, Phone <-> Laptop
 (Pasa = "pass / hand over")
 
-Status: Planned (decisions locked 2026-11-11). Implementation plan: `docs/superpowers/plans/2026-11-11-pasa.md`
+Status: In progress — v0.1.0 built 2026-11-11, needs real-phone test. Implementation plan: `docs/superpowers/plans/2026-11-11-pasa.md`
 
 ## What it is
 A phone app (Android) + laptop app (Windows) for moving files between them. No internet needed. Goal: fast, easy, light.

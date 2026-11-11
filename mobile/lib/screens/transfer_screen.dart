@@ -56,6 +56,14 @@ class _TransferScreenState extends State<TransferScreen> {
     return ListenableBuilder(
       listenable: q, // fires on list or connection changes only; progress rebuilds single rows
       builder: (context, _) {
+        if (q.forgotten) {
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            await forgetLaptop();
+            if (!context.mounted) return;
+            Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => const ConnectScreen(error: 'Laptop forgot this phone. Scan again.')));
+          });
+        }
         final items = q.items;
         return Scaffold(
           appBar: AppBar(
