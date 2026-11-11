@@ -33,6 +33,7 @@ class _TransferScreenState extends State<TransferScreen> {
   @override
   void dispose() {
     _q?.dispose();
+    FilePicker.clearTemporaryFiles(); // the picker copies each sent file into app storage; drop those copies
     super.dispose();
   }
 
