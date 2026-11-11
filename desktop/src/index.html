@@ -1,39 +1,54 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="stylesheet" href="styles.css" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tauri App</title>
-    <script type="module" src="/main.js" defer></script>
-  </head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pasa</title>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="main.js" defer></script>
+</head>
+<body>
+  <div class="app">
+    <div class="head">
+      <div class="word">Pasa</div>
+      <div class="status"><span class="dot" id="dot"></span><span id="status">Waiting for phone</span></div>
+    </div>
 
-  <body>
-    <main class="container">
-      <h1>Welcome to Tauri</h1>
+    <div class="qr-card">
+      <div class="qr" id="qr" role="img" aria-label="QR code to connect your phone"></div>
+      <h2>Scan with your phone</h2>
+      <p id="noNet" hidden>No Wi-Fi. Join Wi-Fi or a hotspot.</p>
+    </div>
 
-      <div class="row">
-        <a href="https://tauri.app" target="_blank">
-          <img src="/assets/tauri.svg" class="logo tauri" alt="Tauri logo" />
-        </a>
-        <a
-          href="https://developer.mozilla.org/en-US/docs/Web/JavaScript"
-          target="_blank"
-        >
-          <img
-            src="/assets/javascript.svg"
-            class="logo vanilla"
-            alt="JavaScript logo"
-          />
-        </a>
-      </div>
-      <p>Click on the Tauri logo to learn more about the framework</p>
+    <div class="actions">
+      <button class="btn primary" id="send"><svg class="i"><use href="#i-up"/></svg>Send files</button>
+      <button class="btn" id="folder"><svg class="i"><use href="#i-folder"/></svg>Received</button>
+    </div>
 
-      <form class="row" id="greet-form">
-        <input id="greet-input" placeholder="Enter a name..." />
-        <button type="submit">Greet</button>
-      </form>
-      <p id="greet-msg"></p>
-    </main>
-  </body>
+    <div class="list-box">
+      <div class="list-head"><h2>Transfers</h2><span class="num" id="sum"></span></div>
+      <div class="empty" id="empty">Drop files here</div>
+      <ul class="list" id="list"></ul>
+    </div>
+
+    <div class="foot">
+      <details>
+        <summary>Can't connect?</summary>
+        <ul>
+          <li>Same Wi-Fi or hotspot</li>
+          <li>Allow Pasa in Windows Firewall</li>
+        </ul>
+      </details>
+      <button class="link" id="forget">Forget phones</button>
+    </div>
+  </div>
+  <div class="drop" aria-hidden="true">Drop to send</div>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-up" viewBox="0 0 16 16"><path d="M8 13V3M4 7l4-4 4 4"/></symbol>
+    <symbol id="i-down" viewBox="0 0 16 16"><path d="M8 3v10M4 9l4 4 4-4"/></symbol>
+    <symbol id="i-x" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 16 16"><path d="M2 4.5V12a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H8L6.5 3H3a1 1 0 0 0-1 1.5z"/></symbol>
+  </svg>
+</body>
 </html>
