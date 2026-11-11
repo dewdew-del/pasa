@@ -1,4 +1,5 @@
 mod files;
+mod server;
 mod transfers;
 mod pairing;
 
