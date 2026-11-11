@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pasa UI mockup</title>
+<style>
+:root {
+  --stage: #e9ebed;
+  --ground: #f9fafb; --surface: #ffffff; --raised: #f3f4f5; --active: #eceeef;
+  --border: #e6e8ea; --rule: #eff1f2; --control: #d1d5db;
+  --text: #111111; --muted: #5f6368;
+  --accent: #1a5fd6; --on-accent: #ffffff; --accent-tint: #e6effc;
+  --negative: #c4242a;
+  --notice-bg: #fffbeb; --notice-border: #fde68a; --notice-ink: #92400e;
+  --cam: #1b1d1e;
+  --font: "Segoe UI Variable Text", "Segoe UI", Roboto, system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --stage: #050505;
+    --ground: #000000; --surface: #111111; --raised: #1c1c1c; --active: #232323;
+    --border: #2a2a2a; --rule: #1d1d1d; --control: #444444;
+    --text: #ffffff; --muted: #b4b4b4;
+    --accent: #5c9cff; --on-accent: #06142b; --accent-tint: #0f1d33;
+    --negative: #e5566f;
+    --notice-bg: #241c0b; --notice-border: #5a4718; --notice-ink: #f2c36b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --stage: #050505;
+  --ground: #000000; --surface: #111111; --raised: #1c1c1c; --active: #232323;
+  --border: #2a2a2a; --rule: #1d1d1d; --control: #444444;
+  --text: #ffffff; --muted: #b4b4b4;
+  --accent: #5c9cff; --on-accent: #06142b; --accent-tint: #0f1d33;
+  --negative: #e5566f;
+  --notice-bg: #241c0b; --notice-border: #5a4718; --notice-ink: #f2c36b;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; }
+body { background: var(--stage); color: var(--text); font: 14px/20px var(--font); -webkit-font-smoothing: antialiased; }
+button { font: inherit; color: inherit; cursor: pointer; }
+.num { font-variant-numeric: tabular-nums; }
+svg.i { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ---------- mockup stage (not part of the apps) ---------- */
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; padding: 12px 24px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.toolbar h1 { font-size: 16px; font-weight: 600; margin: 0 8px 0 0; }
+.toolbar .grp { display: flex; gap: 6px; align-items: center; color: var(--muted); font-size: 12px; }
+.toolbar button { height: 28px; padding: 0 10px; border: 1px solid var(--control); border-radius: 6px; background: var(--surface); font-size: 12px; }
+.toolbar button[aria-pressed="true"] { background: var(--text); color: var(--surface); border-color: var(--text); }
+.stage { display: flex; flex-wrap: wrap; gap: 40px; justify-content: center; align-items: flex-start; padding: 32px 16px 48px; }
+.caption { color: var(--muted); font-size: 12px; margin: 8px 0 0; text-align: center; }
+
+/* ---------- shared app pieces ---------- */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 36px; padding: 0 14px; border-radius: 6px; border: 1px solid var(--control); background: var(--surface); font-weight: 500; transition: background-color .1s; }
+.btn:hover { background: var(--raised); }
+.btn:active { background: var(--active); }
+.btn.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.btn.primary:hover { filter: brightness(1.06); }
+.btn:disabled { opacity: .45; cursor: default; filter: none; }
+.btn:focus-visible, .link:focus-visible, .icon-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.link { border: 0; background: none; padding: 0; color: var(--text); text-decoration: underline; text-underline-offset: 2px; font-size: 12px; }
+.icon-btn { width: 32px; height: 32px; display: inline-grid; place-items: center; border: 0; border-radius: 6px; background: none; color: var(--muted); }
+.icon-btn:hover { background: var(--raised); color: var(--text); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--control); flex: none; }
+.dot.on { background: var(--accent); }
+.notice { background: var(--notice-bg); border: 1px solid var(--notice-border); color: var(--notice-ink); border-radius: 6px; padding: 8px 12px; font-size: 12px; line-height: 16px; }
+
+.list-head { display: flex; justify-content: space-between; align-items: baseline; margin: 0 0 4px; }
+.list-head h2 { font-size: 14px; font-weight: 600; margin: 0; }
+.list-head span { color: var(--muted); font-size: 12px; }
+.list { list-style: none; margin: 0; padding: 0; }
+.row { position: relative; display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px 0; border-bottom: 1px solid var(--rule); contain: layout paint; content-visibility: auto; contain-intrinsic-size: auto 56px; }
+.row .ic { color: var(--muted); }
+.row .meta { flex: 1; min-width: 0; }
+.row .name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.row .sub { color: var(--muted); font-size: 12px; line-height: 16px; }
+.row .sub.bad { color: var(--negative); }
+.row .act { display: flex; align-items: center; gap: 4px; }
+.bar { position: absolute; left: 28px; right: 0; bottom: -1px; height: 2px; background: var(--rule); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); transform-origin: left; transform: scaleX(0); transition: transform .15s linear; will-change: transform; }
+.row.idle .bar { display: none; }
+.empty { border: 1px dashed var(--control); border-radius: 8px; padding: 14px 16px; color: var(--muted); font-size: 13px; }
+
+/* ---------- laptop window ---------- */
+.win { width: min(440px, 100%); height: 720px; display: flex; flex-direction: column; background: var(--ground); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; position: relative; }
+.titlebar { height: 32px; display: flex; align-items: center; justify-content: space-between; padding-left: 12px; background: var(--surface); border-bottom: 1px solid var(--border); font-size: 12px; }
+.titlebar .ctl { display: flex; color: var(--muted); }
+.titlebar .ctl span { width: 44px; text-align: center; }
+.lap { flex: 1; display: flex; flex-direction: column; gap: 16px; padding: 20px; overflow: auto; }
+.lap-head { display: flex; justify-content: space-between; align-items: center; }
+.word { font-size: 20px; font-weight: 600; letter-spacing: -.01em; }
+.status { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 12px; }
+.qr-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; display: grid; justify-items: center; gap: 12px; text-align: center; }
+.qr { width: 200px; height: 200px; background: #fff; padding: 10px; border-radius: 4px; }
+.qr svg { width: 100%; height: 100%; display: block; }
+.qr-card h2 { font-size: 16px; font-weight: 600; margin: 0; }
+.qr-card p { margin: 0; color: var(--muted); font-size: 12px; }
+.conn-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; }
+.conn-card .t { flex: 1; }
+.conn-card .t b { display: block; font-weight: 600; }
+.conn-card .t span { color: var(--muted); font-size: 12px; }
+.actions { display: flex; gap: 8px; }
+.actions .btn.primary { flex: 1; }
+.lap-list { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px 4px; }
+.lap-list .row:last-child { border-bottom: 0; }
+.lap-foot { margin-top: auto; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; font-size: 12px; color: var(--muted); }
+.lap-foot details summary { cursor: pointer; color: var(--text); }
+.lap-foot ul { margin: 6px 0 0; padding-left: 16px; }
+.drop { position: absolute; inset: 33px 0 0; display: none; place-items: center; background: var(--ground); border: 2px dashed var(--accent); border-radius: 0 0 8px 8px; text-align: center; }
+.win.dragging .drop { display: grid; }
+.drop b { display: block; font-size: 16px; }
+.drop span { color: var(--muted); font-size: 12px; }
+
+/* ---------- phone ---------- */
+.phone { width: 376px; max-width: 100%; height: 760px; border: 8px solid #0b0b0b; border-radius: 32px; background: var(--ground); overflow: hidden; display: flex; flex-direction: column; position: relative; font-family: Roboto, var(--font); }
+.sbar { height: 28px; flex: none; display: flex; justify-content: space-between; align-items: center; padding: 0 18px; font-size: 12px; color: var(--text); }
+.scr { flex: 1; display: none; flex-direction: column; min-height: 0; }
+.scr.on { display: flex; }
+.appbar { height: 56px; flex: none; display: flex; align-items: center; gap: 8px; padding: 0 8px 0 16px; }
+.appbar .t { flex: 1; min-width: 0; }
+.appbar .t b { display: block; font-size: 18px; font-weight: 600; line-height: 22px; }
+.appbar .t span { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; }
+.p-body { flex: 1; min-height: 0; overflow: auto; padding: 4px 16px 16px; }
+.p-foot { flex: none; padding: 12px 16px 20px; background: var(--ground); border-top: 1px solid var(--rule); display: grid; gap: 8px; }
+.btn.big { height: 52px; font-size: 16px; border-radius: 8px; width: 100%; }
+.connect { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 12px; padding: 16px 16px 24px; }
+.connect h2 { font-size: 22px; line-height: 28px; font-weight: 600; margin: 0; letter-spacing: -.01em; }
+.connect p { margin: 0 0 8px; color: var(--muted); font-size: 14px; }
+.connect .last { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
+.connect .last b { display: block; }
+.connect .last span { color: var(--muted); font-size: 12px; }
+.cam { flex: 1; background: var(--cam); position: relative; display: grid; place-items: center; color: #fff; }
+.cam .guide { width: 220px; height: 220px; border: 2px solid rgba(255,255,255,.9); border-radius: 12px; }
+.cam .hint { position: absolute; left: 16px; right: 16px; bottom: 24px; text-align: center; font-size: 14px; }
+.cam .hint.notice { color: var(--notice-ink); }
+.cam .back { position: absolute; top: 8px; left: 8px; color: #fff; }
+.cam .back:hover { background: rgba(255,255,255,.12); color: #fff; }
+.menu { position: absolute; right: 12px; top: 88px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.14); padding: 4px; display: none; min-width: 200px; z-index: 5; }
+.menu.on { display: block; }
+.menu button { display: block; width: 100%; text-align: left; border: 0; background: none; padding: 10px 12px; border-radius: 6px; }
+.menu button:hover { background: var(--raised); }
+.banner { margin: 0 16px 8px; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="toolbar" role="toolbar" aria-label="Mockup controls">
+  <h1>Pasa mockup</h1>
+  <div class="grp">Theme
+    <button data-theme-btn="system" aria-pressed="true">System</button>
+    <button data-theme-btn="light" aria-pressed="false">Light</button>
+    <button data-theme-btn="dark" aria-pressed="false">Dark</button>
+  </div>
+  <div class="grp">Phone
+    <button id="simSaved" aria-pressed="true">Has saved laptop</button>
+  </div>
+  <div class="grp">Simulate
+    <button id="simWifi" aria-pressed="false">Wi-Fi drops</button>
+    <button id="simWrong">Scan a wrong QR</button>
+    <button id="simReset">Reset</button>
+  </div>
+</div>
+
+<main class="stage">
+  <!-- ================= LAPTOP ================= -->
+  <section aria-label="Laptop app">
+    <div class="win" id="win">
+      <div class="titlebar"><span>Pasa</span><span class="ctl" aria-hidden="true"><span>&#8211;</span><span>&#9633;</span><span>&#10005;</span></span></div>
+      <div class="lap">
+        <div class="lap-head">
+          <div class="word">Pasa</div>
+          <div class="status"><span class="dot" id="lapDot"></span><span id="lapStatus">Waiting for phone</span></div>
+        </div>
+
+        <div class="qr-card" id="qrCard">
+          <div class="qr" id="qr" role="img" aria-label="QR code to connect your phone"></div>
+          <h2>Scan with your phone</h2>
+        </div>
+
+        <div class="actions">
+          <button class="btn primary" id="lapSend"><svg class="i"><use href="#i-up"/></svg>Send files</button>
+          <button class="btn" id="lapFolder" title="Opens Downloads\Pasa"><svg class="i"><use href="#i-folder"/></svg>Received</button>
+        </div>
+
+        <div class="lap-list">
+          <div class="list-head"><h2>Transfers</h2><span class="num" id="lapSum"></span></div>
+          <div class="empty" id="lapEmpty">Drop files here</div>
+          <ul class="list" id="lapList"></ul>
+        </div>
+
+        <div class="lap-foot">
+          <details>
+            <summary>Can't connect?</summary>
+            <ul>
+              <li>Same Wi-Fi or hotspot</li>
+              <li>Allow Pasa in Windows Firewall</li>
+            </ul>
+          </details>
+          <button class="link" id="forget">Forget phones</button>
+        </div>
+      </div>
+      <div class="drop" aria-hidden="true"><b>Drop to send</b></div>
+    </div>
+    <p class="caption">Laptop · Tauri window 440 × 720. Try dragging real files onto it.</p>
+  </section>
+
+  <!-- ================= PHONE ================= -->
+  <section aria-label="Phone app">
+    <div class="phone" id="phone">
+      <div class="sbar num" aria-hidden="true"><span>9:41</span><span>Wi-Fi · 82%</span></div>
+
+      <!-- connect -->
+      <div class="scr on" id="sConnect">
+        <div class="appbar"><div class="t"><b>Pasa</b></div></div>
+        <div class="connect">
+          <h2 id="cTitle"></h2>
+          <div class="notice" id="cErr" hidden></div>
+          <div class="last" id="cLast">
+            <svg class="i"><use href="#i-laptop"/></svg>
+            <b>DEWDEW-PC</b>
+          </div>
+          <button class="btn primary big" id="cReconnect">Reconnect</button>
+          <button class="btn big" id="cScan"><svg class="i"><use href="#i-scan"/></svg>Scan QR code</button>
+        </div>
+      </div>
+
+      <!-- scan -->
+      <div class="scr" id="sScan">
+        <div class="cam">
+          <button class="icon-btn back" id="scanBack" aria-label="Back"><svg class="i"><use href="#i-back"/></svg></button>
+          <div class="guide" aria-hidden="true"></div>
+          <div class="hint" id="scanHint">Scan the QR on your laptop</div>
+        </div>
+      </div>
+
+      <!-- transfer -->
+      <div class="scr" id="sTransfer">
+        <div class="appbar">
+          <div class="t"><b>DEWDEW-PC</b><span><span class="dot on" id="pDot"></span><span id="pStatus">Connected</span></span></div>
+          <button class="icon-btn" id="pMenuBtn" aria-label="More" aria-haspopup="menu"><svg class="i"><use href="#i-more"/></svg></button>
+        </div>
+        <div class="menu" id="pMenu" role="menu">
+          <button role="menuitem" id="pDisconnect">Disconnect</button>
+          <button role="menuitem" id="pForget">Forget this laptop</button>
+        </div>
+        <div class="notice banner" id="pBanner" hidden>Can't reach laptop. Retrying…</div>
+        <div class="p-body">
+          <div class="list-head"><h2>Transfers</h2><span class="num" id="phSum"></span></div>
+          <div class="empty" id="phEmpty">Nothing yet</div>
+          <ul class="list" id="phList"></ul>
+        </div>
+        <div class="p-foot">
+          <button class="btn primary big" id="pSend"><svg class="i"><use href="#i-up"/></svg>Send files</button>
+        </div>
+      </div>
+    </div>
+    <p class="caption">Phone · Android, 360 dp wide</p>
+  </section>
+</main>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-up" viewBox="0 0 16 16"><path d="M8 13V3M4 7l4-4 4 4"/></symbol>
+  <symbol id="i-down" viewBox="0 0 16 16"><path d="M8 3v10M4 9l4 4 4-4"/></symbol>
+  <symbol id="i-x" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 16 16"><path d="M2 4.5V12a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H8L6.5 3H3a1 1 0 0 0-1 1.5z"/></symbol>
+  <symbol id="i-more" viewBox="0 0 16 16"><path d="M8 3.5h.01M8 8h.01M8 12.5h.01" stroke-width="2.4"/></symbol>
+  <symbol id="i-scan" viewBox="0 0 16 16"><path d="M2 5V3a1 1 0 0 1 1-1h2M11 2h2a1 1 0 0 1 1 1v2M14 11v2a1 1 0 0 1-1 1h-2M5 14H3a1 1 0 0 1-1-1v-2M5 8h6"/></symbol>
+  <symbol id="i-back" viewBox="0 0 16 16"><path d="M13 8H3M7 4L3 8l4 4"/></symbol>
+  <symbol id="i-laptop" viewBox="0 0 16 16"><path d="M3 4h10v6H3zM1.5 12.5h13"/></symbol>
+</svg>
+
+<script>
+"use strict";
+// ---------- helpers (same rules as the plan: base 1024, one decimal) ----------
+const $ = (id) => document.getElementById(id);
+function fmt(b) {
+  if (b < 1024) return b + " B";
+  const u = ["KB", "MB", "GB"]; let i = -1;
+  do { b /= 1024; i++; } while (b >= 1024 && i < 2);
+  return b.toFixed(1) + " " + u[i];
+}
+function fmtTime(s) { s = Math.ceil(s); return s < 60 ? s + " s" : Math.floor(s / 60) + " min " + (s % 60) + " s"; }
+const MB = 1024 * 1024;
+
+// ---------- fake QR (deterministic pattern with finder squares) ----------
+(function drawQr() {
+  const n = 29; let seed = 7, d = "";
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const finder = (x, y) => [[0, 0], [n - 7, 0], [0, n - 7]].some(([fx, fy]) => x >= fx && x < fx + 7 && y >= fy && y < fy + 7);
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (!finder(x, y) && rnd() > .52) d += `M${x} ${y}h1v1h-1z`;
+  const f = (x, y) => `M${x} ${y}h7v7h-7zM${x + 1} ${y + 1}v5h5v-5zM${x + 2} ${y + 2}h3v3h-3z`;
+  $("qr").innerHTML = `<svg viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges"><path fill="#000" fill-rule="evenodd" d="${d}${f(0, 0)}${f(n - 7, 0)}${f(0, n - 7)}"/></svg>`;
+})();
+
+// ---------- state ----------
+const S = { saved: true, connected: false, wifiDown: false, keyRotated: false, qrOpen: false, timer: null, seq: 0, t: [] };
+const phoneSets = [
+  [["IMG_20261108_174211.jpg", 4.2 * MB], ["IMG_20261108_174230.jpg", 3.8 * MB], ["VID_20261109_090311.mp4", 186 * MB]],
+  [["Screenshot_20261110-2214.png", 0.9 * MB], ["Resibo_GCash.jpg", 0.4 * MB]],
+];
+const laptopSets = [
+  [["Thesis_final_v3.pdf", 2.1 * MB], ["Lecture 4 - Networks.pptx", 18.6 * MB]],
+  [["Pasa-demo.mp4", 64 * MB]],
+];
+let pSet = 0, lSet = 0;
+
+// ---------- rows: built once per transfer, then only patched ----------
+function makeRow() {
+  const li = document.createElement("li");
+  li.className = "row idle";
+  li.innerHTML = `<svg class="i ic"><use/></svg><div class="meta"><div class="name"></div><div class="sub num"></div></div><div class="act"></div><div class="bar"><i></i></div>`;
+  return li;
+}
+function add(name, size, dir) {
+  const t = { id: ++S.seq, name, size: Math.round(size), bytes: 0, dir, status: "queued", speed: 0, rows: { lap: makeRow(), ph: makeRow() }, shown: "" };
+  for (const side of ["lap", "ph"]) {
+    const r = t.rows[side];
+    r.querySelector(".name").textContent = name;
+    r.querySelector("use").setAttribute("href", (dir === "to_laptop") === (side === "lap") ? "#i-down" : "#i-up");
+  }
+  S.t.push(t);
+  paint(t); summary(); kick();
+}
+// Live rows on top in send order, finished rows below (newest first).
+// New rows and newly finished rows both go right before the first finished row: one DOM move, never a full re-sort.
+const isLive = (t) => t.status === "queued" || t.status === "active";
+const finHead = { lap: null, ph: null };
+function place(t, finished) {
+  for (const [side, list] of [["lap", $("lapList")], ["ph", $("phList")]]) {
+    const r = t.rows[side];
+    if (r !== finHead[side]) list.insertBefore(r, finHead[side]);
+    if (finished) finHead[side] = r;
+  }
+}
+
+function subText(t, side) {
+  const receiving = (t.dir === "to_laptop") === (side === "lap");
+  switch (t.status) {
+    case "queued": return fmt(t.size);
+    case "active": return Math.floor(t.bytes / t.size * 100) + "% · " + fmt(t.speed) + "/s";
+    case "done": return (receiving ? "Saved · " : "Sent · ") + fmt(t.size);
+    case "cancelled": return "Cancelled";
+    case "failed": return "Failed";
+  }
+}
+function paint(t) {
+  for (const side of ["lap", "ph"]) {
+    const r = t.rows[side];
+    const sub = r.querySelector(".sub");
+    sub.textContent = subText(t, side);
+    sub.classList.toggle("bad", t.status === "failed");
+    r.querySelector(".bar i").style.transform = `scaleX(${t.bytes / t.size})`;
+  }
+  if (t.shown === t.status) return; // buttons and order only change when status changes
+  t.shown = t.status;
+  if (t.status !== "active") place(t, !isLive(t)); // queued = new row; done/cancelled/failed = moves under the live rows
+  for (const side of ["lap", "ph"]) {
+    const r = t.rows[side], act = r.querySelector(".act");
+    const live = t.status === "queued" || t.status === "active";
+    r.classList.toggle("idle", !live);
+    act.textContent = "";
+    if (live) {
+      const b = document.createElement("button");
+      b.className = "icon-btn"; b.setAttribute("aria-label", "Cancel " + t.name);
+      b.innerHTML = `<svg class="i"><use href="#i-x"/></svg>`;
+      b.onclick = () => cancel(t);
+      act.append(b);
+    } else if (t.status === "done" && side === "lap" && t.dir === "to_laptop") {
+      const b = document.createElement("button");
+      b.className = "link"; b.textContent = "Show"; b.title = "Opens Explorer with the file selected";
+      act.append(b);
+    }
+  }
+}
+function summary() {
+  const left = S.t.filter((t) => t.status === "queued" || t.status === "active");
+  const bytes = left.reduce((a, t) => a + t.size - t.bytes, 0);
+  const active = left.find((t) => t.status === "active");
+  const txt = !left.length ? "" : left.length + " left" +
+    (active && active.speed && S.connected ? " · " + fmtTime(bytes / active.speed) : "");
+  $("lapSum").textContent = $("phSum").textContent = txt;
+  $("lapEmpty").hidden = $("phEmpty").hidden = S.t.length > 0;
+}
+
+// ---------- engine: one transfer at a time, ticks every 150 ms like the real app ----------
+function kick() { if (!S.timer) S.timer = setInterval(tick, 150); }
+function tick() {
+  let a = S.t.find((t) => t.status === "active");
+  if (!S.connected) {
+    if (a) { a.status = "failed"; a.bytes = 0; paint(a); }
+    summary(); clearInterval(S.timer); S.timer = null; return;
+  }
+  if (!a) a = S.t.find((t) => t.status === "queued");
+  if (!a) { summary(); clearInterval(S.timer); S.timer = null; return; }
+  if (a.status === "queued") { a.status = "active"; a.speed = 0; }
+  const target = (12 + Math.random() * 4) * MB;
+  a.speed = a.speed ? a.speed * .8 + target * .2 : target;
+  a.bytes = Math.min(a.size, a.bytes + a.speed * .15);
+  if (a.bytes >= a.size) a.status = "done";
+  paint(a); summary();
+}
+function cancel(t) {
+  if (t.status !== "queued" && t.status !== "active") return;
+  t.status = "cancelled"; t.bytes = 0; paint(t); summary(); kick();
+}
+
+// ---------- connection ----------
+function setConnected(on) {
+  S.connected = on;
+  $("lapDot").classList.toggle("on", on);
+  $("lapStatus").textContent = on ? "Phone connected" : "Waiting for phone";
+  $("pDot").classList.toggle("on", on);
+  $("pStatus").textContent = on ? "Connected" : "Not reachable";
+  $("pBanner").hidden = on || !$("sTransfer").classList.contains("on");
+  $("pSend").disabled = !on;
+  if (on) kick(); else summary();
+}
+function screen(id) {
+  for (const s of ["sConnect", "sScan", "sTransfer"]) $(s).classList.toggle("on", s === id);
+  $("pMenu").classList.remove("on");
+}
+function showConnect(err) {
+  screen("sConnect");
+  $("cLast").hidden = $("cReconnect").hidden = !S.saved;
+  $("cScan").className = S.saved ? "btn big" : "btn primary big";
+  $("cTitle").textContent = S.saved ? "Welcome back" : "Scan your laptop's QR";
+  $("cErr").hidden = !err; $("cErr").textContent = err || "";
+}
+function enterTransfer() {
+  S.saved = true; S.keyRotated = false; $("simSaved").setAttribute("aria-pressed", "true");
+  screen("sTransfer"); setConnected(true);
+}
+
+let scanTimer;
+$("cScan").onclick = () => {
+  screen("sScan"); $("scanHint").className = "hint"; $("scanHint").textContent = "Point at the code on your laptop screen";
+  clearTimeout(scanTimer);
+  scanTimer = setTimeout(() => {
+    if (S.wifiDown) return showConnect("Laptop not found. Same Wi-Fi?");
+    enterTransfer();
+  }, 1400);
+};
+$("scanBack").onclick = () => { clearTimeout(scanTimer); showConnect(); };
+$("cReconnect").onclick = () => {
+  const b = $("cReconnect"); b.disabled = true; b.textContent = "Connecting…";
+  setTimeout(() => {
+    b.disabled = false; b.textContent = "Reconnect";
+    if (S.wifiDown || S.keyRotated) return showConnect("Laptop not found. Scan again.");
+    enterTransfer();
+  }, 500);
+};
+$("pMenuBtn").onclick = (e) => { e.stopPropagation(); $("pMenu").classList.toggle("on"); };
+document.addEventListener("click", () => $("pMenu").classList.remove("on"));
+$("pDisconnect").onclick = () => { setConnected(false); showConnect(); };
+$("pForget").onclick = () => { S.saved = false; $("simSaved").setAttribute("aria-pressed", "false"); setConnected(false); showConnect(); };
+
+$("pSend").onclick = () => { for (const [n, s] of phoneSets[pSet++ % phoneSets.length]) add(n, s, "to_laptop"); };
+$("lapSend").onclick = () => { for (const [n, s] of laptopSets[lSet++ % laptopSets.length]) add(n, s, "to_phone"); };
+$("forget").onclick = () => {
+  if (!confirm("Forget phones? Phones that connected before must scan the QR again.")) return;
+  S.keyRotated = true; S.qrOpen = false;
+  if ($("sTransfer").classList.contains("on")) { setConnected(false); showConnect("Laptop forgot this phone. Scan again."); }
+};
+
+// drag and drop onto the laptop window (real files from Explorer)
+const win = $("win"); let depth = 0;
+win.addEventListener("dragenter", (e) => { e.preventDefault(); depth++; win.classList.add("dragging"); });
+win.addEventListener("dragover", (e) => e.preventDefault());
+win.addEventListener("dragleave", () => { if (--depth <= 0) { depth = 0; win.classList.remove("dragging"); } });
+win.addEventListener("drop", (e) => {
+  e.preventDefault(); depth = 0; win.classList.remove("dragging");
+  for (const f of e.dataTransfer.files) add(f.name, Math.max(f.size, 1), "to_phone");
+});
+
+// ---------- mockup controls ----------
+for (const b of document.querySelectorAll("[data-theme-btn]")) b.onclick = () => {
+  const v = b.dataset.themeBtn;
+  if (v === "system") document.documentElement.removeAttribute("data-theme"); else document.documentElement.dataset.theme = v;
+  for (const o of document.querySelectorAll("[data-theme-btn]")) o.setAttribute("aria-pressed", String(o === b));
+};
+$("simSaved").onclick = () => {
+  S.saved = !S.saved; $("simSaved").setAttribute("aria-pressed", String(S.saved));
+  if ($("sConnect").classList.contains("on")) showConnect();
+};
+$("simWifi").onclick = () => {
+  S.wifiDown = !S.wifiDown;
+  $("simWifi").setAttribute("aria-pressed", String(S.wifiDown));
+  $("simWifi").textContent = S.wifiDown ? "Wi-Fi back" : "Wi-Fi drops";
+  if ($("sTransfer").classList.contains("on")) { setConnected(!S.wifiDown); if (S.wifiDown) tick(); }
+};
+$("simWrong").onclick = () => {
+  if (!$("sScan").classList.contains("on")) $("cScan").click();
+  clearTimeout(scanTimer);
+  $("scanHint").className = "hint notice"; $("scanHint").textContent = "Not a Pasa code";
+  scanTimer = setTimeout(() => $("cScan").click(), 2200);
+};
+$("simReset").onclick = () => location.reload();
+
+showConnect();
+setConnected(false);
+</script>
+</body>
+</html>
