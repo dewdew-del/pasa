@@ -7,7 +7,9 @@ import 'package:pasa/api.dart';
 import 'package:pasa/pairing.dart';
 
 /// Fake laptop: checks the key, then hands the request to [handle].
-Future<HttpServer> fakeLaptop(Future<void> Function(HttpRequest r) handle) async {
+Future<HttpServer> fakeLaptop(
+  Future<void> Function(HttpRequest r) handle,
+) async {
   final s = await HttpServer.bind('127.0.0.1', 0);
   s.listen((r) async {
     if (r.headers.value('authorization') != 'Bearer k') {
@@ -20,7 +22,8 @@ Future<HttpServer> fakeLaptop(Future<void> Function(HttpRequest r) handle) async
   return s;
 }
 
-LaptopInfo info(List<String> hosts, int port) => LaptopInfo(hosts: hosts, port: port, key: 'k', name: 'T');
+LaptopInfo info(List<String> hosts, int port) =>
+    LaptopInfo(hosts: hosts, port: port, key: 'k', name: 'T');
 
 void main() {
   late Directory dir;
@@ -33,7 +36,9 @@ void main() {
       await r.response.close();
     });
     final sw = Stopwatch()..start();
-    final api = await PasaApi.connect(info(['10.255.255.1', '127.0.0.1'], s.port));
+    final api = await PasaApi.connect(
+      info(['10.255.255.1', '127.0.0.1'], s.port),
+    );
     expect(api, isNotNull);
     expect(api!.baseUrl, 'http://127.0.0.1:${s.port}');
     expect(sw.elapsed, lessThan(const Duration(seconds: 3)));
@@ -41,7 +46,10 @@ void main() {
   });
 
   test('connect returns null when nothing answers', () async {
-    final api = await PasaApi.connect(info(['10.255.255.1'], 47800), timeout: const Duration(milliseconds: 500));
+    final api = await PasaApi.connect(
+      info(['10.255.255.1'], 47800),
+      timeout: const Duration(milliseconds: 500),
+    );
     expect(api, isNull);
   });
 
@@ -57,11 +65,18 @@ void main() {
       r.response.write('{"saved_as":"x.bin"}');
       await r.response.close();
     });
-    final f = File('${dir.path}/x.bin')..writeAsBytesSync(List.generate(300 * 1024, (i) => i % 251));
+    final f = File('${dir.path}/x.bin')
+      ..writeAsBytesSync(List.generate(300 * 1024, (i) => i % 251));
     var last = 0;
-    await PasaApi('http://127.0.0.1:${s.port}', 'k').upload(f, onProgress: (n) => last = n, abort: Completer<void>().future);
+    await PasaApi(
+      'http://127.0.0.1:${s.port}',
+      'k',
+    ).upload(f, onProgress: (n) => last = n, abort: Completer<void>().future);
     expect(got, f.readAsBytesSync());
-    expect(Uri.splitQueryString(query!), {'name': 'x.bin', 'size': '${300 * 1024}'});
+    expect(Uri.splitQueryString(query!), {
+      'name': 'x.bin',
+      'size': '${300 * 1024}',
+    });
     expect(last, 300 * 1024);
     await s.close(force: true);
   });
@@ -70,7 +85,10 @@ void main() {
     final s = await fakeLaptop((r) async {});
     final f = File('${dir.path}/a')..writeAsStringSync('a');
     expect(
-      PasaApi('http://127.0.0.1:${s.port}', 'wrong').upload(f, onProgress: (_) {}, abort: Completer<void>().future),
+      PasaApi(
+        'http://127.0.0.1:${s.port}',
+        'wrong',
+      ).upload(f, onProgress: (_) {}, abort: Completer<void>().future),
       throwsA(isA<PasaException>()),
     );
     await Future<void>.delayed(const Duration(milliseconds: 200));
@@ -79,9 +97,11 @@ void main() {
 
   test('outbox parses items', () async {
     final s = await fakeLaptop((r) async {
-      r.response.write(jsonEncode([
-        {'id': 'ab', 'name': 'x.txt', 'size': 2}
-      ]));
+      r.response.write(
+        jsonEncode([
+          {'id': 'ab', 'name': 'x.txt', 'size': 2},
+        ]),
+      );
       await r.response.close();
     });
     final items = await PasaApi('http://127.0.0.1:${s.port}', 'k').outbox();
@@ -97,8 +117,12 @@ void main() {
       r.response.write('hi');
       await r.response.close();
     });
-    final f = await PasaApi('http://127.0.0.1:${s.port}', 'k')
-        .download(const OutboxItem('ab', 'x.txt', 2), dir, onProgress: (_) {}, abort: Completer<void>().future);
+    final f = await PasaApi('http://127.0.0.1:${s.port}', 'k').download(
+      const OutboxItem('ab', 'x.txt', 2),
+      dir,
+      onProgress: (_) {},
+      abort: Completer<void>().future,
+    );
     expect(f.path, '${dir.path}/x.txt');
     expect(f.readAsStringSync(), 'hi');
     expect(dir.listSync().length, 1);
@@ -108,14 +132,19 @@ void main() {
   test('download_interrupted_leaves_no_file', () async {
     final s = await fakeLaptop((r) async {
       r.response.contentLength = 1000;
-      final sock = await r.response.detachSocket(); // sends headers, then hands over the raw socket
+      final sock = await r.response
+          .detachSocket(); // sends headers, then hands over the raw socket
       sock.add(List.filled(100, 1));
       await sock.flush();
       sock.destroy(); // Wi-Fi drops after 100 of 1000 bytes
     });
     await expectLater(
-      PasaApi('http://127.0.0.1:${s.port}', 'k')
-          .download(const OutboxItem('ab', 'x.txt', 1000), dir, onProgress: (_) {}, abort: Completer<void>().future),
+      PasaApi('http://127.0.0.1:${s.port}', 'k').download(
+        const OutboxItem('ab', 'x.txt', 1000),
+        dir,
+        onProgress: (_) {},
+        abort: Completer<void>().future,
+      ),
       throwsA(isA<PasaException>()),
     );
     expect(dir.listSync(), isEmpty);
@@ -134,9 +163,14 @@ void main() {
     });
     final abort = Completer<void>();
     await expectLater(
-      PasaApi('http://127.0.0.1:${s.port}', 'k').download(const OutboxItem('ab', 'x.txt', 100000), dir, onProgress: (n) {
-        if (!abort.isCompleted) abort.complete();
-      }, abort: abort.future),
+      PasaApi('http://127.0.0.1:${s.port}', 'k').download(
+        const OutboxItem('ab', 'x.txt', 100000),
+        dir,
+        onProgress: (n) {
+          if (!abort.isCompleted) abort.complete();
+        },
+        abort: abort.future,
+      ),
       throwsA(isA<PasaException>()),
     );
     expect(dir.listSync(), isEmpty);

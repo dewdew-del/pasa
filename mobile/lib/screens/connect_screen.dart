@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
-import '../api.dart';
+import '../wifi.dart';
 import '../pairing.dart';
 import 'transfer_screen.dart';
 
@@ -30,7 +30,7 @@ class _ConnectScreenState extends State<ConnectScreen> {
       _busy = true;
       _error = null;
     });
-    final api = await PasaApi.connect(info);
+    final api = await reachLaptop(info);
     if (!mounted) return;
     if (api == null) {
       setState(() {

@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../api.dart';
+import '../wifi.dart';
 import '../files.dart';
 import '../pairing.dart';
 import '../transfers.dart';
@@ -33,6 +34,7 @@ class _TransferScreenState extends State<TransferScreen> {
   @override
   void dispose() {
     _q?.dispose();
+    leaveLaptopWifi(); // hand the phone's Wi-Fi back
     FilePicker.clearTemporaryFiles(); // the picker copies each sent file into app storage; drop those copies
     super.dispose();
   }

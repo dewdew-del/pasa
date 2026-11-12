@@ -12,7 +12,7 @@ Move files between your Android phone and your Windows laptop over Wi-Fi or a ph
    - Phone: tap **Send files**. They land in the laptop's `Downloads\Pasa`.
    - Laptop: press **Send files** or drop files on the window. They land in the phone's `Download/Pasa` on their own.
 
-Both devices must be on the same Wi-Fi, or the laptop must join the phone's hotspot (fastest).
+Same Wi-Fi? They connect directly. Not on the same Wi-Fi? The phone joins the laptop's own **Pasa** network: Android asks once, tap **Connect**. No hotspot to turn on, and the phone keeps its mobile data.
 
 ## Can't connect?
 

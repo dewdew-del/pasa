@@ -26,8 +26,8 @@ A phone app (Android) + laptop app (Windows) for moving files between them. No i
 6. Same-name files get ` (1)`, ` (2)` ... added. Half-finished files are always deleted, never left in Downloads.
 
 ## Network (no internet needed)
-- Same network: shared Wi-Fi or a phone hotspot (recommended).
-- Wi-Fi Direct and Bluetooth skipped (hard to build / slow / patchy desktop support).
+- Same Wi-Fi: connect directly. Otherwise the laptop runs its own Wi-Fi Direct network (192.168.137.1); its name and password are in the QR and the phone joins it after one "Connect" tap.
+- Bluetooth skipped (slow).
 - Windows Firewall: the installer adds an inbound allow rule for Pasa on all network profiles (hotspots often count as "Public").
 
 ## Stack (all free, P0)

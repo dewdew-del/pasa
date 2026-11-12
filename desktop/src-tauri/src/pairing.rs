@@ -58,9 +58,14 @@ pub fn laptop_name() -> String {
     std::env::var("COMPUTERNAME").map(|n| clean_name(&n)).unwrap_or_else(|_| "Laptop".into())
 }
 
-pub fn qr_payload(ips: &[Ipv4Addr], port: u16, key: &str, name: &str) -> String {
+/// `wifi` = the laptop's own network (name, password), when it's running; names are already URL-safe.
+pub fn qr_payload(ips: &[Ipv4Addr], port: u16, key: &str, name: &str, wifi: Option<(&str, &str)>) -> String {
     let hosts: Vec<String> = ips.iter().map(|i| i.to_string()).collect();
-    format!("pasa://connect?v=1&h={}&p={port}&k={key}&n={name}", hosts.join(","))
+    let mut s = format!("pasa://connect?v=1&h={}&p={port}&k={key}&n={name}", hosts.join(","));
+    if let Some((ssid, pass)) = wifi {
+        s.push_str(&format!("&s={ssid}&w={pass}"));
+    }
+    s
 }
 
 pub fn qr_svg(payload: &str) -> String {
@@ -104,8 +109,12 @@ mod tests {
     fn payload_format() {
         let ips = ["192.168.1.5".parse().unwrap(), "10.0.0.2".parse().unwrap()];
         assert_eq!(
-            qr_payload(&ips, 47800, "ab", "DEWDEW-PC"),
+            qr_payload(&ips, 47800, "ab", "DEWDEW-PC", None),
             "pasa://connect?v=1&h=192.168.1.5,10.0.0.2&p=47800&k=ab&n=DEWDEW-PC"
+        );
+        assert_eq!(
+            qr_payload(&ips[..1], 47800, "ab", "PC", Some(("Pasa-PC", "0123456789abcdef"))),
+            "pasa://connect?v=1&h=192.168.1.5&p=47800&k=ab&n=PC&s=Pasa-PC&w=0123456789abcdef"
         );
     }
     #[test]

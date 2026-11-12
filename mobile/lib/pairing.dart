@@ -9,6 +9,8 @@ class LaptopInfo {
     required this.port,
     required this.key,
     required this.name,
+    this.ssid,
+    this.wifiPass,
   });
 
   final List<String> hosts;
@@ -16,11 +18,17 @@ class LaptopInfo {
   final String key;
   final String name;
 
+  /// The laptop's own Wi-Fi network, for when phone and laptop aren't on the same Wi-Fi.
+  final String? ssid;
+  final String? wifiPass;
+
   Map<String, dynamic> toJson() => {
     'hosts': hosts,
     'port': port,
     'key': key,
     'name': name,
+    'ssid': ssid,
+    'wifiPass': wifiPass,
   };
 
   factory LaptopInfo.fromJson(Map<String, dynamic> j) => LaptopInfo(
@@ -28,10 +36,14 @@ class LaptopInfo {
     port: j['port'] as int,
     key: j['key'] as String,
     name: j['name'] as String,
+    ssid: j['ssid'] as String?,
+    wifiPass: j['wifiPass'] as String?,
   );
 }
 
 final _hexKey = RegExp(r'^[0-9a-f]{64}$');
+
+const laptopNetworkHost = '192.168.137.1';
 
 /// Null unless [raw] is a v1 Pasa QR with hosts, a valid port and a 64-hex key.
 LaptopInfo? parseQr(String raw) {
@@ -49,11 +61,21 @@ LaptopInfo? parseQr(String raw) {
       !_hexKey.hasMatch(key)) {
     return null;
   }
+  final ssid = q['s'];
+  final pass = q['w'];
+  final hasWifi =
+      ssid != null && ssid.isNotEmpty && pass != null && pass.length >= 8;
+  // Windows always gives the laptop this address on its own network; the QR may predate it.
+  if (hasWifi && !hosts.contains(laptopNetworkHost)) {
+    hosts.add(laptopNetworkHost);
+  }
   return LaptopInfo(
     hosts: hosts,
     port: port,
     key: key,
     name: q['n']?.isNotEmpty == true ? q['n']! : 'Laptop',
+    ssid: hasWifi ? ssid : null,
+    wifiPass: hasWifi ? pass : null,
   );
 }
 

@@ -5,7 +5,9 @@ void main() {
   final k = 'a' * 64;
 
   test('parses valid QR', () {
-    final i = parseQr('pasa://connect?v=1&h=192.168.1.5,10.0.0.2&p=47800&k=$k&n=DEWDEW-PC')!;
+    final i = parseQr(
+      'pasa://connect?v=1&h=192.168.1.5,10.0.0.2&p=47800&k=$k&n=DEWDEW-PC',
+    )!;
     expect(i.hosts, ['192.168.1.5', '10.0.0.2']);
     expect(i.port, 47800);
     expect(i.key, k);
@@ -24,6 +26,26 @@ void main() {
     ]) {
       expect(parseQr(s), isNull, reason: s);
     }
+  });
+
+  test('reads the laptop network when present', () {
+    final i = parseQr(
+      'pasa://connect?v=1&h=1.2.3.4&p=5&k=$k&n=X&s=Pasa-X&w=0123456789abcdef',
+    )!;
+    expect(i.ssid, 'Pasa-X');
+    expect(i.wifiPass, '0123456789abcdef');
+    expect(i.hosts, [
+      '1.2.3.4',
+      '192.168.137.1',
+    ]); // the laptop's address on its own network
+    final j = LaptopInfo.fromJson(i.toJson());
+    expect((j.ssid, j.wifiPass), ('Pasa-X', '0123456789abcdef'));
+  });
+
+  test('no network in QR means none', () {
+    final i = parseQr('pasa://connect?v=1&h=1.2.3.4&p=5&k=$k&n=X')!;
+    expect(i.ssid, isNull);
+    expect(LaptopInfo.fromJson(i.toJson()).ssid, isNull);
   });
 
   test('json round trip', () {

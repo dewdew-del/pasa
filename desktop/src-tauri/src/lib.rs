@@ -1,4 +1,5 @@
 mod files;
+mod hotspot;
 mod pairing;
 mod server;
 mod transfers;
@@ -16,6 +17,7 @@ struct Desktop {
     state: AppState,
     key_path: PathBuf,
     port: u16,
+    wifi: Option<(String, String)>, // the laptop's own network, if this Wi-Fi card could start it
 }
 
 #[derive(serde::Serialize)]
@@ -30,7 +32,13 @@ fn pairing_view(d: &Desktop) -> PairingView {
     let ips = pairing::lan_ips();
     let key = d.state.key.read().unwrap().clone();
     PairingView {
-        qr_svg: pairing::qr_svg(&pairing::qr_payload(&ips, d.port, &key, &d.state.name)),
+        qr_svg: pairing::qr_svg(&pairing::qr_payload(
+            &ips,
+            d.port,
+            &key,
+            &d.state.name,
+            d.wifi.as_ref().map(|(s, p)| (s.as_str(), p.as_str())),
+        )),
         name: d.state.name.clone(),
         urls: ips.iter().map(|ip| format!("{ip}:{}", d.port)).collect(),
     }
@@ -98,7 +106,9 @@ pub fn run() {
             };
             let port = tauri::async_runtime::block_on(server::serve(state.clone(), 47800))?;
             let registry = state.registry.clone();
-            app.manage(Desktop { state, key_path, port });
+            let (ssid, pass) = hotspot::wifi_credentials(&app.path().app_config_dir()?.join("wifi"), &state.name)?;
+            let wifi = hotspot::start(ssid.clone(), pass.clone()).then_some((ssid, pass));
+            app.manage(Desktop { state, key_path, port, wifi });
 
             let handle = app.handle().clone();
             tauri::async_runtime::spawn(async move {
