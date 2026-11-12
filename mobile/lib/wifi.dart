@@ -5,6 +5,10 @@ import 'pairing.dart';
 
 const _channel = MethodChannel('pasa/wifi');
 
+const wifiOff = 'Turn on Wi-Fi, then scan again.';
+const joinCancelled = 'Tap Connect to join the laptop.';
+const notFound = 'Laptop not found. Is Pasa open on it?';
+
 /// Asks Android to join the laptop's network (one "Connect" prompt). False if cancelled or not found.
 Future<bool> joinLaptopWifi(String ssid, String pass) async =>
     await _channel.invokeMethod<bool>('join', {'ssid': ssid, 'pass': pass}) ??
@@ -12,12 +16,26 @@ Future<bool> joinLaptopWifi(String ssid, String pass) async =>
 
 Future<void> leaveLaptopWifi() => _channel.invokeMethod<void>('leave');
 
+Future<bool> wifiIsOn() async =>
+    await _channel.invokeMethod<bool>('wifiOn') ?? true;
+
+/// Android's Wi-Fi sheet with the on/off switch (apps may not switch Wi-Fi on by themselves).
+Future<void> openWifiPanel() => _channel.invokeMethod<void>('openWifiPanel');
+
 Future<PasaApi?> _connect(LaptopInfo info, Duration timeout) =>
     PasaApi.connect(info, timeout: timeout);
 
+/// The laptop, or the one-line reason it couldn't be reached.
+class Reach {
+  const Reach(this.api, [this.error]);
+  final PasaApi? api;
+  final String? error;
+}
+
 /// Same Wi-Fi first; if the laptop isn't there, join the laptop's own network and try again.
-Future<PasaApi?> reachLaptop(
+Future<Reach> reachLaptop(
   LaptopInfo info, {
+  Future<bool> Function() wifiOn = wifiIsOn,
   Future<bool> Function(String ssid, String pass) join = joinLaptopWifi,
   Future<PasaApi?> Function(LaptopInfo info, Duration timeout) connect =
       _connect,
@@ -25,16 +43,20 @@ Future<PasaApi?> reachLaptop(
   Duration retryEvery = const Duration(seconds: 1),
 }) async {
   final direct = await connect(info, const Duration(milliseconds: 1500));
-  if (direct != null || info.ssid == null || info.wifiPass == null) {
-    return direct;
+  if (direct != null) return Reach(direct);
+  if (info.ssid == null || info.wifiPass == null) {
+    return const Reach(null, notFound);
   }
-  if (!await join(info.ssid!, info.wifiPass!)) return null;
+  if (!await wifiOn()) return const Reach(null, wifiOff);
+  if (!await join(info.ssid!, info.wifiPass!)) {
+    return const Reach(null, joinCancelled);
+  }
   // The phone needs a moment to get its address on the new network.
   for (var i = 0; i < 6; i++) {
     final api = await connect(info, const Duration(seconds: 2));
-    if (api != null) return api;
+    if (api != null) return Reach(api);
     await Future<void>.delayed(retryEvery);
   }
   await leave();
-  return null;
+  return const Reach(null, notFound);
 }

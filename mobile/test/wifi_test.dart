@@ -10,26 +10,43 @@ void main() {
   )!;
   final noWifi = parseQr('pasa://connect?v=1&h=1.2.3.4&p=5&k=$k&n=X')!;
   final api = PasaApi('http://1.2.3.4:5', k);
+  Future<bool> on() async => true;
 
   test('same Wi-Fi: connects directly, never asks to join', () async {
     var joins = 0;
     final r = await reachLaptop(
       withWifi,
+      wifiOn: on,
       join: (_, _) async => ++joins > 0,
       connect: (_, _) async => api,
     );
-    expect(r, api);
+    expect(r.api, api);
+    expect(r.error, isNull);
     expect(joins, 0);
   });
 
-  test('not reachable and no laptop network: gives up', () async {
+  test('not reachable and no laptop network: not found', () async {
     var joins = 0;
     final r = await reachLaptop(
       noWifi,
+      wifiOn: on,
       join: (_, _) async => ++joins > 0,
       connect: (_, _) async => null,
     );
-    expect(r, isNull);
+    expect(r.api, isNull);
+    expect(r.error, notFound);
+    expect(joins, 0);
+  });
+
+  test('Wi-Fi off: asks to turn it on, never tries to join', () async {
+    var joins = 0;
+    final r = await reachLaptop(
+      withWifi,
+      wifiOn: () async => false,
+      join: (_, _) async => ++joins > 0,
+      connect: (_, _) async => null,
+    );
+    expect(r.error, wifiOff);
     expect(joins, 0);
   });
 
@@ -38,6 +55,7 @@ void main() {
     var tries = 0;
     final r = await reachLaptop(
       withWifi,
+      wifiOn: on,
       join: (s, p) async {
         joined = '$s/$p';
         return true;
@@ -46,32 +64,37 @@ void main() {
           ++tries >= 3 ? api : null, // address takes a moment after joining
       retryEvery: Duration.zero,
     );
-    expect(r, api);
+    expect(r.api, api);
     expect(joined, 'Pasa-X/0123456789abcdef');
   });
 
-  test('user cancels the join prompt: gives up', () async {
+  test('user cancels the join prompt: says to tap Connect', () async {
     var left = false;
     final r = await reachLaptop(
       withWifi,
+      wifiOn: on,
       join: (_, _) async => false,
       connect: (_, _) async => null,
       leave: () async => left = true,
     );
-    expect(r, isNull);
+    expect(r.error, joinCancelled);
     expect(left, isFalse);
   });
 
-  test('joined but laptop never answers: leaves the network', () async {
-    var left = false;
-    final r = await reachLaptop(
-      withWifi,
-      join: (_, _) async => true,
-      connect: (_, _) async => null,
-      leave: () async => left = true,
-      retryEvery: Duration.zero,
-    );
-    expect(r, isNull);
-    expect(left, isTrue);
-  });
+  test(
+    'joined but laptop never answers: leaves the network, not found',
+    () async {
+      var left = false;
+      final r = await reachLaptop(
+        withWifi,
+        wifiOn: on,
+        join: (_, _) async => true,
+        connect: (_, _) async => null,
+        leave: () async => left = true,
+        retryEvery: Duration.zero,
+      );
+      expect(r.error, notFound);
+      expect(left, isTrue);
+    },
+  );
 }

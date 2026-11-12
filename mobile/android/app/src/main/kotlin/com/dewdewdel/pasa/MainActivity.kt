@@ -1,6 +1,9 @@
 package com.dewdewdel.pasa
 
 import android.content.Context
+import android.content.Intent
+import android.net.wifi.WifiManager
+import android.provider.Settings
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
@@ -27,6 +30,12 @@ class MainActivity : FlutterActivity() {
             when (call.method) {
                 "join" -> join(call.argument<String>("ssid")!!, call.argument<String>("pass")!!, result)
                 "leave" -> { leave(); result.success(null) }
+                "wifiOn" -> result.success((applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager).isWifiEnabled)
+                "openWifiPanel" -> {
+                    // Apps can't switch Wi-Fi on by themselves since Android 10; this sheet is one tap.
+                    startActivity(Intent(Settings.Panel.ACTION_WIFI))
+                    result.success(null)
+                }
                 else -> result.notImplemented()
             }
         }

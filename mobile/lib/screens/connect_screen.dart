@@ -23,6 +23,8 @@ class _ConnectScreenState extends State<ConnectScreen> {
     super.initState();
     _error = widget.error;
     loadLaptop().then((l) => mounted ? setState(() => _saved = l) : null);
+    // Joining the laptop's network needs Wi-Fi on; Android only lets us show its Wi-Fi switch.
+    wifiIsOn().then((on) => on ? null : openWifiPanel()).catchError((_) {});
   }
 
   Future<void> _connect(LaptopInfo info, String failMessage) async {
@@ -30,12 +32,14 @@ class _ConnectScreenState extends State<ConnectScreen> {
       _busy = true;
       _error = null;
     });
-    final api = await reachLaptop(info);
+    final r = await reachLaptop(info);
     if (!mounted) return;
+    final api = r.api;
     if (api == null) {
+      if (r.error == wifiOff) openWifiPanel();
       setState(() {
         _busy = false;
-        _error = failMessage;
+        _error = r.error == notFound ? failMessage : r.error;
       });
       return;
     }
@@ -52,7 +56,7 @@ class _ConnectScreenState extends State<ConnectScreen> {
     final info = await Navigator.of(
       context,
     ).push<LaptopInfo>(MaterialPageRoute(builder: (_) => const ScanScreen()));
-    if (info != null) await _connect(info, 'Laptop not found. Same Wi-Fi?');
+    if (info != null) await _connect(info, notFound);
   }
 
   @override
