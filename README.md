@@ -1,6 +1,6 @@
 # Pasa
 
-Move files between your Android phone and your Windows laptop over Wi-Fi or a phone hotspot. No internet, no cables, no account.
+Move files between your Android phone and your Windows laptop. No internet, no cables, no account: the laptop makes its own Wi-Fi network for the phone.
 
 **Live demo:** [Download v0.1.0 (Windows installer + Android APK)](https://github.com/dewdew-del/pasa/releases/tag/v0.1.0)
 
@@ -21,7 +21,7 @@ Same Wi-Fi? They connect directly. Not on the same Wi-Fi? The phone joins the la
 
 ## Can't connect?
 
-- Check both are on the same Wi-Fi or hotspot.
+- Wi-Fi off? Pasa turns the laptop's Wi-Fi on by itself; on the phone, tap the Wi-Fi switch when it pops up.
 - Allow Pasa in Windows Firewall. The installer adds this rule for you; when running from source, tick both **Private** and **Public** on the firewall prompt.
 - On the laptop, **Forget phones** makes old phones scan again.
 
