@@ -46,4 +46,4 @@ tempfile = "3.27.0"
 tower = { version = "0.5.3", features = ["util"] }
 
 [target."cfg(windows)".dependencies]
-windows = { version = "0.62.2", features = ["Devices_WiFiDirect", "Security_Credentials", "Foundation"] }
+windows = { version = "0.62.2", features = ["Devices_WiFiDirect", "Security_Credentials", "Foundation", "Devices_Radios", "Foundation_Collections"] }

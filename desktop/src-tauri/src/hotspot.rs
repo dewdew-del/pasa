@@ -20,11 +20,25 @@ pub fn wifi_credentials(path: &Path, laptop_name: &str) -> std::io::Result<(Stri
     Ok((ssid, pass))
 }
 
-/// Starts the network on a background thread and keeps it up. Returns false if this Wi-Fi card can't.
+/// Keeps the network up on a background thread: turns the laptop's Wi-Fi on if it's off and
+/// restarts the network whenever it drops.
 #[cfg(windows)]
-pub fn start(ssid: String, pass: String) -> bool {
+pub fn start(ssid: String, pass: String) {
+    use windows::Devices::Radios::{Radio, RadioKind, RadioState};
     use windows::Devices::WiFiDirect::{WiFiDirectAdvertisementPublisher, WiFiDirectAdvertisementPublisherStatus as St};
     use windows::Security::Credentials::PasswordCredential;
+
+    /// The Pasa network rides on the Wi-Fi radio; switch it on if the user turned it off.
+    fn wifi_radio_on() -> windows::core::Result<()> {
+        Radio::RequestAccessAsync()?.join()?;
+        for r in Radio::GetRadiosAsync()?.join()? {
+            if r.Kind()? == RadioKind::WiFi && r.State()? != RadioState::On {
+                r.SetStateAsync(RadioState::On)?.join()?;
+                std::thread::sleep(std::time::Duration::from_secs(3)); // let the card come up
+            }
+        }
+        Ok(())
+    }
 
     fn publisher(ssid: &str, pass: &str) -> windows::core::Result<WiFiDirectAdvertisementPublisher> {
         let p = WiFiDirectAdvertisementPublisher::new()?;
@@ -40,26 +54,23 @@ pub fn start(ssid: String, pass: String) -> bool {
         Ok(p)
     }
 
-    let Ok(first) = publisher(&ssid, &pass) else { return false };
+    // Off the UI thread: turning the radio on waits a few seconds.
     std::thread::spawn(move || {
-        let mut p = first;
+        let mut current = None;
         loop {
-            std::thread::sleep(std::time::Duration::from_secs(10));
-            // Windows can stop the network (sleep, Wi-Fi toggled); bring it back.
-            if !matches!(p.Status(), Ok(St::Started)) {
-                if let Ok(np) = publisher(&ssid, &pass) {
-                    p = np;
-                }
+            // Windows stops the network when Wi-Fi is switched off or the laptop sleeps; bring both back.
+            let up = current.as_ref().is_some_and(|p: &WiFiDirectAdvertisementPublisher| matches!(p.Status(), Ok(St::Started)));
+            if !up {
+                let _ = wifi_radio_on();
+                current = publisher(&ssid, &pass).ok();
             }
+            std::thread::sleep(std::time::Duration::from_secs(10));
         }
     });
-    true
 }
 
 #[cfg(not(windows))]
-pub fn start(_ssid: String, _pass: String) -> bool {
-    false
-}
+pub fn start(_ssid: String, _pass: String) {}
 
 #[cfg(test)]
 mod tests {

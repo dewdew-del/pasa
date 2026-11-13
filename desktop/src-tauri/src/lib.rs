@@ -107,7 +107,8 @@ pub fn run() {
             let port = tauri::async_runtime::block_on(server::serve(state.clone(), 47800))?;
             let registry = state.registry.clone();
             let (ssid, pass) = hotspot::wifi_credentials(&app.path().app_config_dir()?.join("wifi"), &state.name)?;
-            let wifi = hotspot::start(ssid.clone(), pass.clone()).then_some((ssid, pass));
+            hotspot::start(ssid.clone(), pass.clone());
+            let wifi = cfg!(windows).then_some((ssid, pass)); // network retries in the background, so always offer it
             app.manage(Desktop { state, key_path, port, wifi });
 
             let handle = app.handle().clone();

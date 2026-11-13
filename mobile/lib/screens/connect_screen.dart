@@ -36,7 +36,6 @@ class _ConnectScreenState extends State<ConnectScreen> {
     if (!mounted) return;
     final api = r.api;
     if (api == null) {
-      if (r.error == wifiOff) openWifiPanel();
       setState(() {
         _busy = false;
         _error = r.error == notFound ? failMessage : r.error;

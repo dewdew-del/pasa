@@ -16,7 +16,7 @@ void main() {
     var joins = 0;
     final r = await reachLaptop(
       withWifi,
-      wifiOn: on,
+      ensureWifi: on,
       join: (_, _) async => ++joins > 0,
       connect: (_, _) async => api,
     );
@@ -29,7 +29,7 @@ void main() {
     var joins = 0;
     final r = await reachLaptop(
       noWifi,
-      wifiOn: on,
+      ensureWifi: on,
       join: (_, _) async => ++joins > 0,
       connect: (_, _) async => null,
     );
@@ -38,11 +38,11 @@ void main() {
     expect(joins, 0);
   });
 
-  test('Wi-Fi off: asks to turn it on, never tries to join', () async {
+  test('Wi-Fi stays off after asking: says so, never tries to join', () async {
     var joins = 0;
     final r = await reachLaptop(
       withWifi,
-      wifiOn: () async => false,
+      ensureWifi: () async => false,
       join: (_, _) async => ++joins > 0,
       connect: (_, _) async => null,
     );
@@ -55,7 +55,7 @@ void main() {
     var tries = 0;
     final r = await reachLaptop(
       withWifi,
-      wifiOn: on,
+      ensureWifi: on,
       join: (s, p) async {
         joined = '$s/$p';
         return true;
@@ -72,7 +72,7 @@ void main() {
     var left = false;
     final r = await reachLaptop(
       withWifi,
-      wifiOn: on,
+      ensureWifi: on,
       join: (_, _) async => false,
       connect: (_, _) async => null,
       leave: () async => left = true,
@@ -87,7 +87,7 @@ void main() {
       var left = false;
       final r = await reachLaptop(
         withWifi,
-        wifiOn: on,
+        ensureWifi: on,
         join: (_, _) async => true,
         connect: (_, _) async => null,
         leave: () async => left = true,
@@ -97,4 +97,58 @@ void main() {
       expect(left, isTrue);
     },
   );
+
+  test(
+    'Wi-Fi off at scan: asks, user turns it on, carries on to join',
+    () async {
+      var asked = 0;
+      var joins = 0;
+      final r = await reachLaptop(
+        withWifi,
+        ensureWifi: () async =>
+            ++asked > 0, // the switch was shown and turned on
+        join: (_, _) async => ++joins > 0,
+        connect: (_, _) async => joins > 0 ? api : null,
+        retryEvery: Duration.zero,
+      );
+      expect(r.api, api);
+      expect(asked, 1);
+      expect(joins, 1);
+    },
+  );
+
+  test(
+    'waitForWifi: opens the switch once, returns when Wi-Fi comes on',
+    () async {
+      var checks = 0;
+      var opened = 0;
+      final on = await waitForWifi(
+        isOn: () async => ++checks >= 3, // off, off, then on
+        open: () async => opened++,
+        every: Duration.zero,
+      );
+      expect(on, isTrue);
+      expect(opened, 1);
+    },
+  );
+
+  test('waitForWifi: gives up if Wi-Fi never comes on', () async {
+    final on = await waitForWifi(
+      isOn: () async => false,
+      open: () async {},
+      every: Duration.zero,
+      tries: 5,
+    );
+    expect(on, isFalse);
+  });
+
+  test('waitForWifi: already on, never opens the switch', () async {
+    var opened = 0;
+    final on = await waitForWifi(
+      isOn: () async => true,
+      open: () async => opened++,
+    );
+    expect(on, isTrue);
+    expect(opened, 0);
+  });
 }
