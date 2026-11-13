@@ -22,13 +22,16 @@
 
     <div class="actions">
       <button class="btn primary" id="send"><svg class="i"><use href="#i-up"/></svg>Send files</button>
-      <button class="btn" id="folder"><svg class="i"><use href="#i-folder"/></svg>Received</button>
+      <button class="btn" id="folder"><svg class="i"><use href="#i-folder"/></svg>Open received files</button>
     </div>
 
     <div class="list-box">
       <div class="list-head" id="listHead" hidden><h2>Transfers</h2><span class="num" id="sum"></span></div>
       <div class="empty" id="empty"><svg class="i"><use href="#i-down"/></svg>Drop files here</div>
-      <ul class="list" id="list"></ul>
+      <h3 class="group" id="inHead" hidden>Received from phone</h3>
+      <ul class="list" id="listIn"></ul>
+      <h3 class="group" id="outHead" hidden>Sent to phone</h3>
+      <ul class="list" id="listOut"></ul>
     </div>
 
     <div class="foot">

@@ -89,12 +89,13 @@ class PasaApi {
   /// Streams [file] to the laptop. Throws [PasaException] unless the laptop saved it.
   Future<void> upload(
     File file, {
+    String? name,
     required void Function(int sent) onProgress,
     required Future<void> abort,
   }) async {
     final size = await file.length();
     final uri = Uri.parse('$baseUrl/api/upload').replace(
-      queryParameters: {'name': p.basename(file.path), 'size': '$size'},
+      queryParameters: {'name': name ?? p.basename(file.path), 'size': '$size'},
     );
     final req = http.AbortableStreamedRequest('POST', uri, abortTrigger: abort)
       ..headers.addAll(_auth)

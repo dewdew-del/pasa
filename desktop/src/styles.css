@@ -55,6 +55,7 @@ svg.i { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor;
 .list-head h2 { font-size: 14px; font-weight: 600; margin: 0; }
 .list-head span { color: var(--muted); font-size: 12px; }
 .list { list-style: none; margin: 0; padding: 0; }
+.group { font-size: 12px; font-weight: 600; color: var(--muted); margin: 12px 0 0; }
 .row { position: relative; display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px 0; border-bottom: 1px solid var(--rule); contain: layout paint; content-visibility: auto; contain-intrinsic-size: auto 56px; }
 .row:last-child { border-bottom: 0; }
 .row .ic { color: var(--muted); }

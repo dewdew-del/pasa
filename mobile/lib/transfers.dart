@@ -28,6 +28,7 @@ class Transfer extends ChangeNotifier {
   final Dir dir;
   final File? file; // upload source
   final OutboxItem? item; // download source
+  File? saved; // where a finished download landed
   int bytes = 0;
   TStatus status = TStatus.queued;
   DateTime? startedAt;
@@ -132,12 +133,13 @@ class TransferQueue extends ChangeNotifier {
     _run();
   }
 
-  void addUploads(List<File> files) {
-    for (final f in files) {
+  /// [names] are the files' real names; the picker's temp copies can have random ones.
+  void addUploads(List<File> files, {List<String>? names}) {
+    for (final (i, f) in files.indexed) {
       _all.add(
         Transfer(
           id: 'u${_uploadSeq++}',
-          name: p.basename(f.path),
+          name: names?[i] ?? p.basename(f.path),
           size: f.lengthSync(),
           dir: Dir.toLaptop,
           file: f,
@@ -193,11 +195,12 @@ class TransferQueue extends ChangeNotifier {
       if (t.dir == Dir.toLaptop) {
         await api.upload(
           t.file!,
+          name: t.name,
           onProgress: (n) => t.bytes = n,
           abort: abort.future,
         );
       } else {
-        await api.download(
+        t.saved = await api.download(
           t.item!,
           saveDir,
           onProgress: (n) => t.bytes = n,

@@ -49,11 +49,13 @@ class _TransferScreenState extends State<TransferScreen> {
 
   Future<void> _pick() async {
     final picked = await FilePicker.pickFiles();
-    final files = [
-      for (final f in picked)
-        if (f.path != null) File(f.path!),
-    ];
-    if (files.isNotEmpty) _q?.addUploads(files);
+    final ok = picked.where((f) => f.path != null).toList();
+    if (ok.isNotEmpty) {
+      _q?.addUploads(
+        [for (final f in ok) File(f.path!)],
+        names: [for (final f in ok) f.name],
+      );
+    }
   }
 
   @override
@@ -191,14 +193,36 @@ class _TransferScreenState extends State<TransferScreen> {
                           ],
                         ),
                       )
-                    : ListView.builder(
+                    : ListView(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
-                        itemCount: items.length,
-                        itemBuilder: (_, i) => TransferRow(
-                          key: ValueKey(items[i].id),
-                          t: items[i],
-                          onCancel: () => q.cancel(items[i].id),
-                        ),
+                        children: [
+                          for (final (dir, label) in const [
+                            (Dir.toPhone, 'Received from laptop'),
+                            (Dir.toLaptop, 'Sent to laptop'),
+                          ])
+                            if (items.any((x) => x.dir == dir)) ...[
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  top: 12,
+                                  bottom: 4,
+                                ),
+                                child: Text(
+                                  label,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: t.colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ),
+                              for (final x in items.where((x) => x.dir == dir))
+                                TransferRow(
+                                  key: ValueKey(x.id),
+                                  t: x,
+                                  onCancel: () => q.cancel(x.id),
+                                ),
+                            ],
+                        ],
                       ),
               ),
             ],
@@ -245,7 +269,7 @@ class TransferRow extends StatelessWidget {
     TStatus.active =>
       '${t.size == 0 ? 0 : (t.bytes * 100 ~/ t.size)}% · ${formatSpeed(t.speed)}',
     TStatus.done =>
-      '${t.dir == Dir.toPhone ? 'Saved' : 'Sent'} · ${formatBytes(t.size)}',
+      '${t.dir == Dir.toPhone ? 'Saved to Download/Pasa' : 'Sent'} · ${formatBytes(t.size)}',
     TStatus.cancelled => 'Cancelled',
     TStatus.failed => 'Failed',
   };
@@ -305,6 +329,22 @@ class TransferRow extends StatelessWidget {
                       tooltip: 'Cancel',
                       icon: const Icon(Icons.close, size: 18),
                       color: th.colorScheme.onSurfaceVariant,
+                    ),
+                  if (t.saved != null && t.status == TStatus.done)
+                    TextButton(
+                      onPressed: () {
+                        final snack = ScaffoldMessenger.of(context);
+                        openFile(t.saved!.path).catchError(
+                          (_) => snack.showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'No app can open this file. Find it in Download/Pasa.',
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                      child: const Text('Open'),
                     ),
                 ],
               ),

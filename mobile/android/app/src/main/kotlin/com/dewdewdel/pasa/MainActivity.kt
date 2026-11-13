@@ -2,7 +2,9 @@ package com.dewdewdel.pasa
 
 import android.content.Context
 import android.content.Intent
+import android.media.MediaScannerConnection
 import android.net.wifi.WifiManager
+import android.webkit.MimeTypeMap
 import android.provider.Settings
 import android.net.ConnectivityManager
 import android.net.Network
@@ -36,6 +38,7 @@ class MainActivity : FlutterActivity() {
                     startActivity(Intent(Settings.Panel.ACTION_WIFI))
                     result.success(null)
                 }
+                "openFile" -> openFile(call.argument<String>("path")!!, result)
                 else -> result.notImplemented()
             }
         }
@@ -69,6 +72,26 @@ class MainActivity : FlutterActivity() {
         }
         callback = cb
         cm.requestNetwork(request, cb, 60_000) // the prompt waits for the user; give up after a minute
+    }
+
+    // The media scanner hands back a content:// link other apps may read, so no FileProvider is needed.
+    private fun openFile(path: String, result: MethodChannel.Result) {
+        val main = Handler(Looper.getMainLooper())
+        val type = MimeTypeMap.getSingleton()
+            .getMimeTypeFromExtension(path.substringAfterLast('.', "").lowercase()) ?: "*/*"
+        MediaScannerConnection.scanFile(this, arrayOf(path), arrayOf(type)) { _, uri ->
+            main.post {
+                try {
+                    startActivity(
+                        Intent(Intent.ACTION_VIEW).setDataAndType(uri!!, type)
+                            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    )
+                    result.success(null)
+                } catch (e: Exception) {
+                    result.error("open", e.message, null) // no app for this type, or scan failed
+                }
+            }
+        }
     }
 
     private fun leave() {

@@ -36,7 +36,7 @@ function subText(t) {
   switch (t.status) {
     case "queued": return fmt(t.size);
     case "active": return (t.size ? Math.floor(t.bytes / t.size * 100) : 0) + "% · " + fmt(t.speed) + "/s";
-    case "done": return (t.direction === "to_laptop" ? "Saved · " : "Sent · ") + fmt(t.size);
+    case "done": return (t.direction === "to_laptop" ? "Saved to Downloads\\Pasa · " : "Sent · ") + fmt(t.size);
     case "cancelled": return "Cancelled";
     default: return "Failed";
   }
@@ -61,19 +61,23 @@ function patch(li, t) {
   } else if (t.status === "done" && t.path) {
     const b = document.createElement("button");
     b.className = "link";
-    b.textContent = "Show";
+    b.textContent = "Show in folder";
     b.onclick = () => invoke("reveal", { path: t.path });
     act.append(b);
   }
 }
 function render(list) {
-  const ul = $("list");
-  list.forEach((t, i) => {
-    let li = rows.get(t.id);
-    if (!li) { li = makeRow(t); rows.set(t.id, li); }
-    patch(li, t);
-    if (ul.children[i] !== li) ul.insertBefore(li, ul.children[i] || null); // moves only rows whose place changed
-  });
+  for (const [dir, ulId, headId] of [["to_laptop", "listIn", "inHead"], ["to_phone", "listOut", "outHead"]]) {
+    const ul = $(ulId);
+    const group = list.filter((t) => t.direction === dir);
+    group.forEach((t, i) => {
+      let li = rows.get(t.id);
+      if (!li) { li = makeRow(t); rows.set(t.id, li); }
+      patch(li, t);
+      if (ul.children[i] !== li) ul.insertBefore(li, ul.children[i] || null); // moves only rows whose place changed
+    });
+    $(headId).hidden = group.length === 0;
+  }
   $("empty").hidden = list.length > 0;
   $("listHead").hidden = list.length === 0;
   const left = list.filter(live);

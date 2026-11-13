@@ -86,6 +86,14 @@ void main() {
     expect(laptop.uploads, ['a.txt', 'b.txt']);
   });
 
+  test('uploads send the real name, not the temp copy name', () async {
+    q.start();
+    q.addUploads([temp('494dcd6a.jpg', 'a')], names: ['beach.jpg']);
+    await until(() => q.items.every((t) => t.status == TStatus.done));
+    expect(laptop.uploads, ['beach.jpg']);
+    expect(q.items.single.name, 'beach.jpg');
+  });
+
   test('outbox items download automatically', () async {
     laptop.outbox = [
       {'id': 'x1', 'name': 'hi.txt', 'size': 2},

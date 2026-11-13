@@ -22,6 +22,10 @@ Future<bool> wifiIsOn() async =>
 /// Android's Wi-Fi sheet with the on/off switch (apps may not switch Wi-Fi on by themselves).
 Future<void> openWifiPanel() => _channel.invokeMethod<void>('openWifiPanel');
 
+/// Opens a received file in whatever app handles it (Gallery, PDF reader...).
+Future<void> openFile(String path) =>
+    _channel.invokeMethod<void>('openFile', {'path': path});
+
 Future<PasaApi?> _connect(LaptopInfo info, Duration timeout) =>
     PasaApi.connect(info, timeout: timeout);
 
