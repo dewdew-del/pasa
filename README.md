@@ -2,7 +2,12 @@
 
 Move files between your Android phone and your Windows laptop over Wi-Fi or a phone hotspot. No internet, no cables, no account.
 
-**Live demo:** coming soon (the APK and Windows installer will be on GitHub Releases once published)
+**Live demo:** [Download v0.1.0 (Windows installer + Android APK)](https://github.com/dewdew-del/pasa/releases/tag/v0.1.0)
+
+<p>
+  <img src="docs/screenshots/laptop.png" alt="Pasa on the laptop, showing its QR code" height="420">
+  <img src="docs/screenshots/phone.png" alt="Pasa on the phone, ready to scan" height="420">
+</p>
 
 ## How to use
 
