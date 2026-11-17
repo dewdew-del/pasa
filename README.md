@@ -45,7 +45,7 @@ cd desktop && npm install && npm run tauri build
 Phone (needs Flutter):
 
 ```bash
-cd mobile && flutter build apk --release --split-per-abi
+cd mobile && flutter build apk --release --target-platform android-arm,android-arm64
 ```
 
 Tests:
